@@ -1,0 +1,13 @@
+﻿@{
+    var themeString = Model.Theme.ToString() == "Bootstrap" ? "" : string.Format("theme='{0}'", Model.Theme);
+}
+<!DOCTYPE html>
+<html>
+<title>@Model.Title</title>
+
+<xmp @Raw(themeString) style="display:none;">
+@Raw(Model.Markdown)
+</xmp>
+
+<script src="strapdown.js"></script>
+</html>
