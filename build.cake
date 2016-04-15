@@ -46,7 +46,9 @@ Task("Clean")
         CleanDirectories(path + "/**/bin/" + configuration);
         CleanDirectories(path + "/**/obj/" + configuration);
     }
+    Information("Cleaning common files");
 	DeleteFiles(GetFiles("./**/TemplatePackage/*.nupkg*"));
+    CleanDirectory("./dist/");
 });
 
 Task("Restore")
@@ -90,6 +92,7 @@ Task("BuildTemplatePackage")
 				settings.SetConfiguration(releaseMode)
 					.WithTarget("Build"));
 		}
+        CopyFiles("./**/TemplatePackage/*.nupkg", "./dist");
 	});
 	
 Task("Publish")
@@ -97,11 +100,11 @@ Task("Publish")
 	.IsDependentOn("BuildTemplatePackage")
 	.Does(() => {
 		Information("Merging DocCreator.exe");
-		CreateDirectory("./build");
+		CreateDirectory("./dist");
 		var assemblyList = GetFiles("./src/DocCreator/bin/" + configuration + "/**/*.dll");
 		Information("Executing ILMerge to merge {0} assemblies", assemblyList.Count);
 		ILRepack(
-			"./build/DocCreator.exe",
+			"./dist/DocCreator.exe",
 			"./src/DocCreator/bin/" + configuration + "/DocCreator.exe",
 			assemblyList);
 		

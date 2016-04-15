@@ -13,8 +13,8 @@ namespace DocCreator
     {
         private static Dictionary<string, string> Defaults => new Dictionary<string, string>
         {
-            ["PackageId"] = "TemplatePackage",
-            ["SourceRepository"] = "http://10.7.180.9/nuget"
+            ["PackageId"] = "DocCreator.TemplatePackage",
+            ["SourceRepository"] = "https://nuget.org/api/v2/"
         };
 
         internal static string GetSetting(string key)

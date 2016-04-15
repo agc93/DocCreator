@@ -210,3 +210,8 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+
+# Ignore tools builds
+!tools/packages.config
+tools/**/*.*
+dist/**
