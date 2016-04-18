@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>DocCreator</id>
+    <version>0.1.1</version>
+    <authors>Alistair Chapman</authors>
+    <description>A simple tool to transform Markdown documents into attractive HTML, powered by strapdown.js</description>
+    <releaseNotes></releaseNotes>
+    <language>en-AU</language>
+    <projectUrl>https://bitbucket.org/agc93/DocCreator/</projectUrl>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+  </metadata>
+  <files>
+	  <file src="dist\*.exe" target="tools" />
+  </files>
+</package>

@@ -213,5 +213,5 @@ ModelManifest.xml
 
 # Ignore tools builds
 !tools/packages.config
-tools/**/*.*
+tools/**/*
 dist/**

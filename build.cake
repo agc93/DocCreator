@@ -95,9 +95,8 @@ Task("BuildTemplatePackage")
         CopyFiles("./**/TemplatePackage/*.nupkg", "./dist");
 	});
 	
-Task("Publish")
+Task("Repack")
 	.IsDependentOn("Build")
-	.IsDependentOn("BuildTemplatePackage")
 	.Does(() => {
 		Information("Merging DocCreator.exe");
 		CreateDirectory("./dist");
@@ -107,8 +106,17 @@ Task("Publish")
 			"./dist/DocCreator.exe",
 			"./src/DocCreator/bin/" + configuration + "/DocCreator.exe",
 			assemblyList);
-		
 	});
+    
+Task("NuGet")
+    .IsDependentOn("BuildTemplatePackage")
+    .IsDependentOn("Repack")
+    .Does(() => {
+        Information("Building NuGet package");
+        var nuspecFiles = GetFiles("./*.nuspec");
+        NuGetPack(nuspecFiles, new NuGetPackSettings());
+        MoveFiles("./DocCreator.*.nupkg", "./dist"); 
+    });
 
 ///////////////////////////////////////////////////////////////////////////////
 // TARGETS
@@ -116,6 +124,7 @@ Task("Publish")
 
 Task("Default")
     .IsDependentOn("Build");
+Task("Publish").IsDependentOn("NuGet");
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION
