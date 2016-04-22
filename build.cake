@@ -10,9 +10,8 @@ var pushPackage = Argument<bool>("uploadpackage", false);
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 
-Func<IFileSystemInfo, bool> excludePackageProject = info => !info.Path.FullPath.Contains("TemplatePackage.csproj");
 var solutions = GetFiles("./**/*.sln");
-var projects = GetFiles("./**/*.csproj", excludePackageProject);
+var projects = ParseSolution("./src/DocCreator.sln").Projects;
 var projectPaths = projects.Select(p => p.GetDirectory());
 var outputPath = "bin\\" + configuration + "\\";
 
@@ -75,7 +74,6 @@ Task("Build")
             settings.SetPlatformTarget(PlatformTarget.MSIL)
                 .WithProperty("TreatWarningsAsErrors","true")
 				.SetVerbosity(Verbosity.Quiet)
-				.WithProperty("OutputPath", outputPath)
                 .WithTarget("Build")
                 .SetConfiguration(configuration));
     }
