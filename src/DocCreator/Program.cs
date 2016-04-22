@@ -63,7 +63,6 @@ namespace DocCreator
 
 		private static DirectoryInfo GenerateFiles(TemplateManager templater, ApplicationArgs args, List<string> files)
 		{
-			var di = new FileInfo(files[0]).Directory;
 			var outputFiles = new List<FileInfo>();
 			foreach (var file in files.Select(f => new FileInfo(f)))
 			{

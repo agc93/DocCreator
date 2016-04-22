@@ -4,14 +4,14 @@
 
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
-var pushPackage = Argument<bool>("uploadpackage", false); 
+var pushPackage = Argument<bool>("uploadpackage", false);
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 
 Func<IFileSystemInfo, bool> excludePackageProject = info => !info.Path.FullPath.Contains("TemplatePackage.csproj");
-var solutions = GetFiles("./**/*.sln"); 
+var solutions = GetFiles("./**/*.sln");
 var projects = GetFiles("./**/*.csproj", excludePackageProject);
 var projectPaths = projects.Select(p => p.GetDirectory());
 var outputPath = "bin\\" + configuration + "\\";
@@ -71,9 +71,10 @@ Task("Build")
     foreach(var project in projects)
     {
         Information("Building {0}", project);
-        MSBuild(project, settings => 
+        MSBuild(project, settings =>
             settings.SetPlatformTarget(PlatformTarget.MSIL)
                 .WithProperty("TreatWarningsAsErrors","true")
+				.SetVerbosity(Verbosity.Quiet)
 				.WithProperty("OutputPath", outputPath)
                 .WithTarget("Build")
                 .SetConfiguration(configuration));
@@ -90,11 +91,12 @@ Task("BuildTemplatePackage")
 		foreach (var projectFile in projects) {
 			MSBuild(projectFile, settings =>
 				settings.SetConfiguration(releaseMode)
+					.SetVerbosity(Verbosity.Quiet)
 					.WithTarget("Build"));
 		}
         CopyFiles("./**/TemplatePackage/*.nupkg", "./dist");
 	});
-	
+
 Task("Repack")
 	.IsDependentOn("Build")
 	.Does(() => {
@@ -107,7 +109,7 @@ Task("Repack")
 			"./src/DocCreator/bin/" + configuration + "/DocCreator.exe",
 			assemblyList);
 	});
-    
+
 Task("NuGet")
     .IsDependentOn("BuildTemplatePackage")
     .IsDependentOn("Repack")
@@ -115,7 +117,7 @@ Task("NuGet")
         Information("Building NuGet package");
         var nuspecFiles = GetFiles("./*.nuspec");
         NuGetPack(nuspecFiles, new NuGetPackSettings());
-        MoveFiles("./DocCreator.*.nupkg", "./dist"); 
+        MoveFiles("./DocCreator.*.nupkg", "./dist");
     });
 
 ///////////////////////////////////////////////////////////////////////////////

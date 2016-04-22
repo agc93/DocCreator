@@ -2,10 +2,10 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>DocCreator</id>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
     <authors>Alistair Chapman</authors>
     <description>A simple tool to transform Markdown documents into attractive HTML, powered by strapdown.js</description>
-    <releaseNotes></releaseNotes>
+    <releaseNotes>Suppress temp file output from template creation, and fix crash for inaccessible generation target</releaseNotes>
     <language>en-AU</language>
     <projectUrl>https://bitbucket.org/agc93/DocCreator/</projectUrl>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
