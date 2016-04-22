@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>DocCreator</id>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <authors>Alistair Chapman</authors>
     <description>A simple tool to transform Markdown documents into attractive HTML, powered by strapdown.js</description>
     <releaseNotes></releaseNotes>
