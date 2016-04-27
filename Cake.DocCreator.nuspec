@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>Cake.DocCreator</id>
+		<version>0.0.5</version>
+		<title>Cake.DocCreator</title>
+		<authors>Alistair Chapman</authors>
+		<owners>Alistair Chapman</owners>
+		<licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+		<projectUrl>https://bitbucket.org/agc93/DocCreator/</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/cake-build/graphics/master/png/cake-medium.png</iconUrl>
+		<language>en-AU</language>
+		<description>A Cake addin to generate HTML documentation from Markdown source, using DocCreator</description>
+		<releaseNotes>Fix argument quoting in Cake plugin</releaseNotes>
+		<tags>cake build script documentation markdown</tags>
+	</metadata>
+	<files>
+		<file src="dist\build\Cake.DocCreator\*.dll" target="lib\net45"/>
+	</files>
+</package>

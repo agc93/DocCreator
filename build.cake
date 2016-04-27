@@ -4,17 +4,17 @@
 
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
-var pushPackage = Argument<bool>("uploadpackage", false); 
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 
-Func<IFileSystemInfo, bool> excludePackageProject = info => !info.Path.FullPath.Contains("TemplatePackage.csproj");
-var solutions = GetFiles("./**/*.sln"); 
-var projects = GetFiles("./**/*.csproj", excludePackageProject);
-var projectPaths = projects.Select(p => p.GetDirectory());
+var solutionPath = File("./src/DocCreator.sln");
+var solution = ParseSolution(solutionPath);
+var projects = solution.Projects;
+var projectPaths = projects.Select(p => p.Path.GetDirectory());
 var outputPath = "bin\\" + configuration + "\\";
+var artifacts = "./dist/";
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
@@ -47,7 +47,6 @@ Task("Clean")
         CleanDirectories(path + "/**/obj/" + configuration);
     }
     Information("Cleaning common files");
-	DeleteFiles(GetFiles("./**/TemplatePackage/*.nupkg*"));
     CleanDirectory("./dist/");
 });
 
@@ -55,11 +54,8 @@ Task("Restore")
     .Does(() =>
 {
     // Restore all NuGet packages.
-    foreach(var solution in solutions)
-    {
-        Information("Restoring {0}...", solution);
-        NuGetRestore(solution);
-    }
+    Information("Restoring {0}...", solution);
+    NuGetRestore(solutionPath);
 });
 
 Task("Build")
@@ -67,55 +63,58 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
 {
-    // Build all solutions.
-    foreach(var project in projects)
-    {
-        Information("Building {0}", project);
-        MSBuild(project, settings => 
-            settings.SetPlatformTarget(PlatformTarget.MSIL)
-                .WithProperty("TreatWarningsAsErrors","true")
-				.WithProperty("OutputPath", outputPath)
-                .WithTarget("Build")
-                .SetConfiguration(configuration));
-    }
+	Information("Building {0}", solution);
+	MSBuild(solutionPath, settings =>
+		settings.SetPlatformTarget(PlatformTarget.MSIL)
+			.WithProperty("TreatWarningsAsErrors","true")
+			.SetVerbosity(Verbosity.Quiet)
+			.WithTarget("Build")
+			.SetConfiguration(configuration));
 });
 
-Task("BuildTemplatePackage")
-	.IsDependentOn("Clean")
-	.IsDependentOn("Restore")
-	.Does(() => {
-		var releaseMode = pushPackage ? "Release" : "Debug";
-		Information("Building TemplatePackage project in {0} mode", releaseMode);
-		var projects = GetFiles("./**/TemplatePackage.csproj");
-		foreach (var projectFile in projects) {
-			MSBuild(projectFile, settings =>
-				settings.SetConfiguration(releaseMode)
-					.WithTarget("Build"));
-		}
-        CopyFiles("./**/TemplatePackage/*.nupkg", "./dist");
-	});
-	
-Task("Publish")
+Task("Copy-Files")
+    .IsDependentOn("Build")
+    .Does(() =>
+{
+    CreateDirectory(artifacts + "build");
+	foreach (var project in projects) {
+		CreateDirectory(artifacts + "build/" + project.Name);
+		var files = GetFiles(project.Path.GetDirectory() +"/bin/" +configuration +"/" +project.Name +".*");
+		CopyFiles(files, artifacts + "build/" + project.Name);
+	}
+});
+
+Task("Repack")
 	.IsDependentOn("Build")
-	.IsDependentOn("BuildTemplatePackage")
 	.Does(() => {
 		Information("Merging DocCreator.exe");
-		CreateDirectory("./dist");
+		CreateDirectory("./dist/tools");
 		var assemblyList = GetFiles("./src/DocCreator/bin/" + configuration + "/**/*.dll");
 		Information("Executing ILMerge to merge {0} assemblies", assemblyList.Count);
 		ILRepack(
-			"./dist/DocCreator.exe",
+			"./dist/tools/DocCreator.exe",
 			"./src/DocCreator/bin/" + configuration + "/DocCreator.exe",
 			assemblyList);
-		
 	});
+
+Task("NuGet")
+    .IsDependentOn("Copy-Files")
+	.IsDependentOn("Repack")
+    .Does(() => {
+		CreateDirectory("./dist/package/");
+        Information("Building NuGet package");
+        var nuspecFiles = GetFiles("./**/*.nuspec");
+        NuGetPack(nuspecFiles, new NuGetPackSettings());
+        MoveFiles("./**/*DocCreator.*.nupkg", "./dist/package/");
+    });
 
 ///////////////////////////////////////////////////////////////////////////////
 // TARGETS
 ///////////////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Build");
+    .IsDependentOn("Copy-Files");
+Task("Publish").IsDependentOn("NuGet");
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION
