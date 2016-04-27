@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	<id>DocCreator.TemplatePackage</id>
-	<version>1.0.5</version>
+	<version>1.0.6</version>
 	<title>DocCreator.TemplatePackage</title>
 	<authors>Alistair Chapman</authors>
 	<owners></owners>
@@ -10,7 +10,7 @@
 	  Template Package for DocCreator
 	</description>
 	<releaseNotes>
-		Updated to new build tools
+		Remove unnecessary files
 	</releaseNotes>
 	<summary>
 	  Simple Strapdown.js-based template package

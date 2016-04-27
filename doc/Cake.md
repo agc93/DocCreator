@@ -16,8 +16,8 @@ See below for a complete example:
 Task("GenerateDocs")
 .Does(() => {
 	var outputPath = "./artifacts/docs";
-	var docFiles = GetFiles("./doc/*.md");
-    DocCreator(docFiles).Generate(settings => settings
+	var docsDir = Directory("./doc/");
+    DocCreator(docsDir).Generate(settings => settings
 		.OutputToPath(outputPath)
 		.WithTitle("Cake.DocCreator")
 		.With(Theme.Simplex)

@@ -33,6 +33,8 @@ namespace Cake.DocCreator
 
 		public DirectoryPath OutputPath { get; private set; }
 
+		private bool Debug { get; set; }
+
 		public void Build(ProcessArgumentBuilder args)
 		{
 			if (OutputPath == null || InputPath == null)
@@ -40,10 +42,17 @@ namespace Cake.DocCreator
 				throw new ArgumentException("Must provide input file list and output path");
 			}
 			if (InputPath.ToString().IsPresent()) args.Append($"-i {InputPath}");
-			if (Title.IsPresent()) args.Append($"-t {Title}");
+			if (Title.IsPresent()) {
+				args.Append("-t");
+				args.AppendQuoted(Title);
+			}
 			if (Theme.ToString().IsPresent()) args.Append($"-b {Theme}");
 			if (RewriteLinks) args.Append($"--rewrite-links");
 			args.Append($"-o {OutputPath}");
+			if (Debug)
+			{
+				Console.WriteLine(args.Render());
+			}
 		}
 
 		public DocCreatorSettings WithTitle(string title)
@@ -68,6 +77,12 @@ namespace Cake.DocCreator
 		{
 			OutputPath = directory;
 			if (!Directory.Exists(OutputPath.FullPath)) Directory.CreateDirectory(OutputPath.FullPath);
+			return this;
+		}
+
+		public DocCreatorSettings EnableDebug(bool enabled = true)
+		{
+			Debug = enabled;
 			return this;
 		}
 	}

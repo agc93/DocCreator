@@ -11,6 +11,6 @@
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
   </metadata>
   <files>
-	  <file src="dist\*.exe" target="tools" />
+	  <file src="dist\tools\*.exe" target="tools" />
   </files>
 </package>

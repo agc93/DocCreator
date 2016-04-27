@@ -62,7 +62,7 @@ namespace Cake.DocCreator.Tests
 				s.With(Theme.Amelia).WithTitle("Cake.DocCreator");
 			};
 			var result = Fixture.Run();
-			result.Args.ShouldContain("-t Cake.DocCreator");
+			result.Args.ShouldContain("-t \"Cake.DocCreator\"");
 		}
 
 		[Fact]
