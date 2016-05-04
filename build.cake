@@ -98,6 +98,8 @@ Task("Run-Unit-Tests")
 
     var settings = new XUnit2Settings {
         NoAppDomain = true,
+		XmlReport = true,
+		HtmlReport = true,
         OutputDirectory = testResultsPath,
     };
     settings.ExcludeTrait("Category", "Integration");
