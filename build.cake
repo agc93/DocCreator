@@ -1,3 +1,5 @@
+#tool "xunit.runner.console"
+#tool "GitVersion.CommandLine"
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,8 +15,10 @@ var solutionPath = File("./src/DocCreator.sln");
 var solution = ParseSolution(solutionPath);
 var projects = solution.Projects;
 var projectPaths = projects.Select(p => p.Path.GetDirectory());
-var outputPath = "bin\\" + configuration + "\\";
+var testAssemblies = projects.Where(p => p.Name.Contains("Test")).Select(p => p.Path.GetDirectory() + "/bin/" + configuration + "/" + p.Name + ".dll");
 var artifacts = "./dist/";
+var testResultsPath = MakeAbsolute(Directory(artifacts + "./test-results"));
+GitVersion versionInfo = null;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
@@ -24,6 +28,8 @@ Setup(() =>
 {
     // Executed BEFORE the first task.
     Information("Running tasks...");
+	versionInfo = GitVersion();
+	Information("Building for version {0}", versionInfo.FullSemVer);
 });
 
 Teardown(() =>
@@ -46,7 +52,7 @@ Task("Clean")
         CleanDirectories(path + "/**/bin/" + configuration);
         CleanDirectories(path + "/**/obj/" + configuration);
     }
-    Information("Cleaning common files");
+    Information("Cleaning common files...");
     CleanDirectory("./dist/");
 });
 
@@ -54,7 +60,7 @@ Task("Restore")
     .Does(() =>
 {
     // Restore all NuGet packages.
-    Information("Restoring {0}...", solution);
+    Information("Restoring solution...");
     NuGetRestore(solutionPath);
 });
 
@@ -63,7 +69,7 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
 {
-	Information("Building {0}", solution);
+	Information("Building solution...");
 	MSBuild(solutionPath, settings =>
 		settings.SetPlatformTarget(PlatformTarget.MSIL)
 			.WithProperty("TreatWarningsAsErrors","true")
@@ -84,10 +90,28 @@ Task("Copy-Files")
 	}
 });
 
+Task("Run-Unit-Tests")
+    .IsDependentOn("Build")
+    .Does(() =>
+{
+    CreateDirectory(testResultsPath);
+
+    var settings = new XUnit2Settings {
+        NoAppDomain = true,
+		XmlReport = true,
+		HtmlReport = true,
+        OutputDirectory = testResultsPath,
+    };
+    settings.ExcludeTrait("Category", "Integration");
+
+    XUnit2(testAssemblies, settings);
+});
+
+
 Task("Repack")
 	.IsDependentOn("Build")
 	.Does(() => {
-		Information("Merging DocCreator.exe");
+		Information("Merging DocCreator.exe...");
 		CreateDirectory("./dist/tools");
 		var assemblyList = GetFiles("./src/DocCreator/bin/" + configuration + "/**/*.dll");
 		Information("Executing ILMerge to merge {0} assemblies", assemblyList.Count);
@@ -99,12 +123,15 @@ Task("Repack")
 
 Task("NuGet")
     .IsDependentOn("Copy-Files")
+	.IsDependentOn("Run-Unit-Tests")
 	.IsDependentOn("Repack")
     .Does(() => {
 		CreateDirectory("./dist/package/");
         Information("Building NuGet package");
         var nuspecFiles = GetFiles("./**/*.nuspec");
-        NuGetPack(nuspecFiles, new NuGetPackSettings());
+        NuGetPack(nuspecFiles, new NuGetPackSettings() {
+			Version = versionInfo.NuGetVersionV2
+			});
         MoveFiles("./**/*DocCreator.*.nupkg", "./dist/package/");
     });
 
@@ -113,7 +140,8 @@ Task("NuGet")
 ///////////////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Copy-Files");
+    .IsDependentOn("Copy-Files")
+	.IsDependentOn("Run-Unit-Tests");
 Task("Publish").IsDependentOn("NuGet");
 
 ///////////////////////////////////////////////////////////////////////////////
