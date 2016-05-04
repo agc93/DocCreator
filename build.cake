@@ -97,7 +97,6 @@ Task("Run-Unit-Tests")
     CreateDirectory(testResultsPath);
 
     var settings = new XUnit2Settings {
-        XmlReportV1 = true,
         NoAppDomain = true,
         OutputDirectory = testResultsPath,
     };
