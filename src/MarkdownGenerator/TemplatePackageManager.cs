@@ -12,14 +12,14 @@ namespace MarkdownGenerator
         {
             Repository =
                 PackageRepositoryFactory.Default.CreateRepository(sourceRepo);
-            Local = Path.Combine(Path.GetTempPath(), "DocPackages");
+            Local = Path.Combine(Path.GetTempPath(), "TemplatePackageCache");
             Manager = new PackageManager(Repository, Path.Combine(Path.GetTempPath(), Local));
         }
 
         public DirectoryInfo GetPackage(string packageId)
         {
             var package = Repository.FindPackage(packageId);
-            CleanPackages(packageId);
+            CleanPackages(packageId, package.Version);
             Manager.InstallPackage(package, true, true);
             //var targetPath = Path.Combine(Local, packageId);
             //if (!Directory.Exists(targetPath))
@@ -35,10 +35,11 @@ namespace MarkdownGenerator
             return new DirectoryInfo(Path.Combine(Local, $"{packageId}.{package.Version}", "content"));
         }
 
-        private void CleanPackages(string packageId)
+        private void CleanPackages(string packageId, SemanticVersion version)
         {
             foreach (var package in Manager.LocalRepository.GetPackages().Where(p => p.Id == packageId))
             {
+                if (package.IsAbsoluteLatestVersion || package.Version.CompareTo(version) >= 0) return;
                 var dir = Manager.PathResolver.GetPackageDirectory(package);
                 Manager.UninstallPackage(packageId);
                 try

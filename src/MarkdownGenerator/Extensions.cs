@@ -9,27 +9,26 @@ namespace MarkdownGenerator
 {
     public static class Extensions
     {
-        public static void CopyDirectory(this DirectoryInfo source, DirectoryInfo target)
+        public static void CopyDirectory(this DirectoryInfo source, DirectoryInfo target, bool verbose = false)
         {
-            Copy(source.FullName, target.FullName);
+            Copy(source.FullName, target.FullName, verbose);
         }
 
-        private static void Copy(string sourceDirectory, string targetDirectory)
+        private static void Copy(string sourceDirectory, string targetDirectory, bool verbose = false)
         {
             DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
             DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
-
-            CopyAll(diSource, diTarget);
+            CopyAll(diSource, diTarget, verbose);
         }
 
-        private static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        private static void CopyAll(DirectoryInfo source, DirectoryInfo target, bool verbose = true)
         {
             Directory.CreateDirectory(target.FullName);
 
             // Copy each file into the new directory.
             foreach (FileInfo fi in source.GetFiles())
             {
-                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                if (verbose) Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
                 fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
             }
 

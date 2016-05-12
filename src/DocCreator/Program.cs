@@ -20,10 +20,10 @@ namespace DocCreator
 			}
 			else
 			{
-				GenerateDocument(p.Object);
+				var output = GenerateDocument(p.Object);
 				try
 				{
-					System.Diagnostics.Process.Start(p.Object.OutputDirectory);
+					System.Diagnostics.Process.Start(output?.FullName ?? p.Object.OutputDirectory);
 				}
 				catch (Exception)
 				{
@@ -32,7 +32,7 @@ namespace DocCreator
 			}
 		}
 
-		private static void GenerateDocument(ApplicationArgs args)
+		private static DirectoryInfo GenerateDocument(ApplicationArgs args)
 		{
 			var files = new List<string>();
 			if (File.Exists(args.InputFile))
@@ -56,9 +56,10 @@ namespace DocCreator
 			{
 				Directory.CreateDirectory(args.OutputDirectory);
 			}
-			var templater = new TemplateManager(package, new DirectoryInfo(args.OutputDirectory));
-			var directory = GenerateFiles(templater, args, files);
-			//directory.CopyDirectory(new DirectoryInfo(args.OutputDirectory));
+			using (var templater = new TemplateManager(package, new DirectoryInfo(args.OutputDirectory)))
+			{
+				return GenerateFiles(templater, args, files);
+			}
 		}
 
 		private static DirectoryInfo GenerateFiles(TemplateManager templater, ApplicationArgs args, List<string> files)

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RazorEngine;
 using RazorEngine.Configuration;
 using RazorEngine.Templating;
@@ -11,62 +8,86 @@ using Encoding = System.Text.Encoding;
 
 namespace MarkdownGenerator
 {
-	public class TemplateManager
-	{
-		public TemplateManager(DirectoryInfo templateDirectory, DirectoryInfo outputDirectory)
-		{
-			Output = outputDirectory.FullName;
-			Root = templateDirectory.FullName;
-			templateDirectory.CopyDirectory(outputDirectory);
-			var engine = RazorEngineService.Create(new TemplateServiceConfiguration()
-			{
-				TemplateManager = new ResolvePathTemplateManager(new[] {templateDirectory.FullName}),
-				CachingProvider = new DefaultCachingProvider(
-					c => { }
-					)
-			});
-			Engine.Razor = engine;
-			
-		}
+    public class TemplateManager : IDisposable
+    {
+        public TemplateManager(DirectoryInfo templateDirectory, DirectoryInfo outputDirectory)
+        {
+            Output = outputDirectory.FullName;
+            Workspace = CreateWorkspace(templateDirectory.FullName);
+            var engine = RazorEngineService.Create(new TemplateServiceConfiguration
+            {
+                TemplateManager = new ResolvePathTemplateManager(new[] {Workspace}),
+                CachingProvider = new DefaultCachingProvider(
+                    c => { }
+                    )
+            });
+            Engine.Razor = engine;
+        }
 
-		private string Output { get; set; }
+        private string Workspace { get; }
 
-		private string Root { get; set; }
+        private string Output { get; }
 
-		public string GenerateHtml(TemplateModel model)
-		{
-			Model = model;
-			var s = Engine.Razor.RunCompile("Template.cshtml", typeof (TemplateModel), model);
-			return s;
-		}
+        private TemplateModel Model { get; set; }
 
-		private TemplateModel Model { get; set; }
+        public void Dispose()
+        {
+            try
+            {
+                Directory.Delete(Workspace);
+                Console.WriteLine("Cleaning workspace...");
+            }
+            catch
+            {
+                // ignored
+            }
+        }
 
-		public FileInfo WriteToFile(string content, string fileName)
-		{
-			var path = Path.Combine(Output, fileName);
-			CleanupOutput(new DirectoryInfo(Output));
-			File.WriteAllText(path, content, Encoding.UTF8);
-			return new FileInfo(path);
-		}
+        private string CreateWorkspace(string fullName)
+        {
+            var di = new DirectoryInfo(fullName);
+            var tempPath = Path.Combine(Path.GetTempPath(), $"dc-{Guid.NewGuid()}");
+            if (!Directory.Exists(tempPath)) Directory.CreateDirectory(tempPath);
+            di.CopyDirectory(new DirectoryInfo(tempPath));
+            return tempPath;
+        }
 
-		private void CleanupOutput(DirectoryInfo outputDirectory)
-		{
-			try
-			{
-				var templatePath = Path.Combine(outputDirectory.FullName, "Template.cshtml");
-				if (File.Exists(templatePath)) File.Delete(templatePath);
-				if (Model == null) return;
-				var themeFiles = Directory.EnumerateFiles(Path.Combine(outputDirectory.FullName, "themes"), "*.css", SearchOption.TopDirectoryOnly);
-				foreach (var theme in themeFiles.Where(f => !f.Contains(Model.Theme.ToString().ToLower()) && !f.Contains("bootstrap")))
-				{
-					File.Delete(Path.Combine(outputDirectory.FullName, "themes", theme));
-				}
-			}
-			catch
-			{
-				// ignored
-			}
-		}
-	}
+        public string GenerateHtml(TemplateModel model)
+        {
+            Model = model;
+            var s = Engine.Razor.RunCompile("Template.cshtml", typeof(TemplateModel), model);
+            return s;
+        }
+
+        public FileInfo WriteToFile(string content, string fileName)
+        {
+            var path = Path.Combine(Output, fileName);
+            CleanupOutput(new DirectoryInfo(Output));
+            File.WriteAllText(path, content, Encoding.UTF8);
+            return new FileInfo(path);
+        }
+
+        private void CleanupOutput(DirectoryInfo outputDirectory)
+        {
+            try
+            {
+                var templatePath = Path.Combine(outputDirectory.FullName, "Template.cshtml");
+                if (File.Exists(templatePath)) File.Delete(templatePath);
+                if (Model == null) return;
+                var themeFiles = Directory.EnumerateFiles(Path.Combine(outputDirectory.FullName, "themes"), "*.css",
+                    SearchOption.TopDirectoryOnly);
+                foreach (
+                    var theme in
+                        themeFiles.Where(f => !f.Contains(Model.Theme.ToString().ToLower()) && !f.Contains("bootstrap"))
+                    )
+                {
+                    File.Delete(Path.Combine(outputDirectory.FullName, "themes", theme));
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+    }
 }
