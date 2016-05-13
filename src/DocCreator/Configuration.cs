@@ -8,7 +8,7 @@ namespace DocCreator
 {
     internal static class Configuration
     {
-        internal static IFileSystem FileSystem { get; set; }
+        internal static IFileSystem FileSystem { get; set; } = new FileSystem();
         private static Dictionary<string, string> Defaults => new Dictionary<string, string>
         {
             ["PackageId"] = "DocCreator.TemplatePackage",

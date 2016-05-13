@@ -37,7 +37,7 @@ namespace MarkdownGenerator
         {
             try
             {
-                FileSystem.Directory.Delete(Workspace);
+                FileSystem.Directory.Delete(Workspace, true);
                 Console.WriteLine("Cleaning workspace...");
             }
             catch
@@ -65,6 +65,10 @@ namespace MarkdownGenerator
         public FileInfoBase WriteToFile(string content, string fileName)
         {
             var path = FileSystem.Path.Combine(Output, fileName);
+            FileSystem.DirectoryInfo.FromDirectoryName(Workspace)
+                .CopyDirectory(
+                    FileSystem.DirectoryInfo.FromDirectoryName(
+                        FileSystem.FileInfo.FromFileName(path).Directory.FullName));
             CleanupOutput(FileSystem.DirectoryInfo.FromDirectoryName(Output));
             FileSystem.File.WriteAllText(path, content, Encoding.UTF8);
             return FileSystem.FileInfo.FromFileName(path);
