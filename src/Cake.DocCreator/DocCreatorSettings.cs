@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Cake.Core;
 using Cake.Core.IO;
 using Cake.Core.Tooling;
@@ -11,13 +9,16 @@ namespace Cake.DocCreator
 {
 	public class DocCreatorSettings : ToolSettings
 	{
-		public DocCreatorSettings(Path input, DirectoryPath outputPath)
+		public DocCreatorSettings(ICakeContext context, Path input, DirectoryPath outputPath)
 		{
+		    Context = context;
 			InputPath = input;
 			OutputPath = outputPath;
 		}
 
-		public DocCreatorSettings()
+	    private ICakeContext Context { get; set; }
+
+	    public DocCreatorSettings()
 		{
 		}
 
@@ -76,7 +77,7 @@ namespace Cake.DocCreator
 		public DocCreatorSettings OutputToPath(DirectoryPath directory)
 		{
 			OutputPath = directory;
-			if (!Directory.Exists(OutputPath.FullPath)) Directory.CreateDirectory(OutputPath.FullPath);
+			if (!Context.FileSystem.GetDirectory(OutputPath).Exists) Context.FileSystem.GetDirectory(OutputPath).Create();
 			return this;
 		}
 

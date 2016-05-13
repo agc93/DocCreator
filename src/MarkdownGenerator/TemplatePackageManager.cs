@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using NuGet;
 
@@ -8,15 +8,16 @@ namespace MarkdownGenerator
 {
     public class TemplatePackageManager
     {
-        public TemplatePackageManager(string sourceRepo)
+        public TemplatePackageManager(string sourceRepo, System.IO.Abstractions.IFileSystem fs = null)
         {
+            FileSystem = fs ?? new FileSystem();
             Repository =
                 PackageRepositoryFactory.Default.CreateRepository(sourceRepo);
-            Local = Path.Combine(Path.GetTempPath(), "TemplatePackageCache");
-            Manager = new PackageManager(Repository, Path.Combine(Path.GetTempPath(), Local));
+            Local = FileSystem.Path.Combine(FileSystem.Path.GetTempPath(), "TemplatePackageCache");
+            Manager = new PackageManager(Repository, FileSystem.Path.Combine(FileSystem.Path.GetTempPath(), Local));
         }
 
-        public DirectoryInfo GetPackage(string packageId)
+        public DirectoryInfoBase GetPackage(string packageId)
         {
             var package = Repository.FindPackage(packageId);
             CleanPackages(packageId, package.Version);
@@ -32,7 +33,7 @@ namespace MarkdownGenerator
             //    segments.AddRange(packageFile.Path.Split('\\'));
             //    File.Copy(Path.Combine(segments.ToArray()), Path.Combine(targetPath, packageFile.Path));
             //}
-            return new DirectoryInfo(Path.Combine(Local, $"{packageId}.{package.Version}", "content"));
+            return FileSystem.DirectoryInfo.FromDirectoryName(FileSystem.Path.Combine(Local, $"{packageId}.{package.Version}", "content"));
         }
 
         private void CleanPackages(string packageId, SemanticVersion version)
@@ -44,7 +45,7 @@ namespace MarkdownGenerator
                 Manager.UninstallPackage(packageId);
                 try
                 {
-                    Directory.Delete(dir);
+                    FileSystem.Directory.Delete(dir, true);
                 }
                 catch (Exception)
                 {
@@ -58,5 +59,6 @@ namespace MarkdownGenerator
         private string Local { get; set; }
 
         private IPackageRepository Repository { get; set; }
+        private System.IO.Abstractions.IFileSystem FileSystem { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using RazorEngine;
 using RazorEngine.Configuration;
@@ -10,8 +10,9 @@ namespace MarkdownGenerator
 {
     public class TemplateManager : IDisposable
     {
-        public TemplateManager(DirectoryInfo templateDirectory, DirectoryInfo outputDirectory)
+        public TemplateManager(IFileSystem fs, DirectoryInfoBase templateDirectory, DirectoryInfoBase outputDirectory)
         {
+            FileSystem = fs;
             Output = outputDirectory.FullName;
             Workspace = CreateWorkspace(templateDirectory.FullName);
             var engine = RazorEngineService.Create(new TemplateServiceConfiguration
@@ -24,6 +25,8 @@ namespace MarkdownGenerator
             Engine.Razor = engine;
         }
 
+        private IFileSystem FileSystem { get; set; }
+
         private string Workspace { get; }
 
         private string Output { get; }
@@ -34,7 +37,7 @@ namespace MarkdownGenerator
         {
             try
             {
-                Directory.Delete(Workspace);
+                FileSystem.Directory.Delete(Workspace, true);
                 Console.WriteLine("Cleaning workspace...");
             }
             catch
@@ -45,10 +48,10 @@ namespace MarkdownGenerator
 
         private string CreateWorkspace(string fullName)
         {
-            var di = new DirectoryInfo(fullName);
-            var tempPath = Path.Combine(Path.GetTempPath(), $"dc-{Guid.NewGuid()}");
-            if (!Directory.Exists(tempPath)) Directory.CreateDirectory(tempPath);
-            di.CopyDirectory(new DirectoryInfo(tempPath));
+            var di = FileSystem.DirectoryInfo.FromDirectoryName(fullName);
+            var tempPath = FileSystem.Path.Combine(FileSystem.Path.GetTempPath(), $"dc-{Guid.NewGuid()}");
+            if (!FileSystem.Directory.Exists(tempPath)) FileSystem.Directory.CreateDirectory(tempPath);
+            di.CopyDirectory(FileSystem.DirectoryInfo.FromDirectoryName(tempPath));
             return tempPath;
         }
 
@@ -59,29 +62,33 @@ namespace MarkdownGenerator
             return s;
         }
 
-        public FileInfo WriteToFile(string content, string fileName)
+        public FileInfoBase WriteToFile(string content, string fileName)
         {
-            var path = Path.Combine(Output, fileName);
-            CleanupOutput(new DirectoryInfo(Output));
-            File.WriteAllText(path, content, Encoding.UTF8);
-            return new FileInfo(path);
+            var path = FileSystem.Path.Combine(Output, fileName);
+            FileSystem.DirectoryInfo.FromDirectoryName(Workspace)
+                .CopyDirectory(
+                    FileSystem.DirectoryInfo.FromDirectoryName(
+                        FileSystem.FileInfo.FromFileName(path).Directory.FullName));
+            CleanupOutput(FileSystem.DirectoryInfo.FromDirectoryName(Output));
+            FileSystem.File.WriteAllText(path, content, Encoding.UTF8);
+            return FileSystem.FileInfo.FromFileName(path);
         }
 
-        private void CleanupOutput(DirectoryInfo outputDirectory)
+        private void CleanupOutput(DirectoryInfoBase outputDirectory)
         {
             try
             {
-                var templatePath = Path.Combine(outputDirectory.FullName, "Template.cshtml");
-                if (File.Exists(templatePath)) File.Delete(templatePath);
+                var templatePath = FileSystem.Path.Combine(outputDirectory.FullName, "Template.cshtml");
+                if (FileSystem.File.Exists(templatePath)) FileSystem.File.Delete(templatePath);
                 if (Model == null) return;
-                var themeFiles = Directory.EnumerateFiles(Path.Combine(outputDirectory.FullName, "themes"), "*.css",
-                    SearchOption.TopDirectoryOnly);
+                var themeFiles = FileSystem.Directory.EnumerateFiles(FileSystem.Path.Combine(outputDirectory.FullName, "themes"), "*.css",
+                    System.IO.SearchOption.TopDirectoryOnly);
                 foreach (
                     var theme in
                         themeFiles.Where(f => !f.Contains(Model.Theme.ToString().ToLower()) && !f.Contains("bootstrap"))
                     )
                 {
-                    File.Delete(Path.Combine(outputDirectory.FullName, "themes", theme));
+                    FileSystem.File.Delete(FileSystem.Path.Combine(outputDirectory.FullName, "themes", theme));
                 }
             }
             catch

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Fclp;
 using MarkdownGenerator;
@@ -10,8 +9,10 @@ namespace DocCreator
 {
 	class Program
 	{
+        private static IFileSystem FileSystem { get; set; }
 		static void Main(string[] args)
 		{
+            FileSystem = new FileSystem();
 			var p = BuildCommandParser();
 			var parserResult = p.Parse(args);
 			if (parserResult.HasErrors || parserResult.HelpCalled)
@@ -32,18 +33,19 @@ namespace DocCreator
 			}
 		}
 
-		private static DirectoryInfo GenerateDocument(ApplicationArgs args)
+		private static DirectoryInfoBase GenerateDocument(ApplicationArgs args)
 		{
+		    var fs = FileSystem;
 			var files = new List<string>();
-			if (File.Exists(args.InputFile))
+			if (fs.File.Exists(args.InputFile))
 			{
 				files.Add(args.InputFile);
 			}
 			else
 			{
-				if (Directory.Exists(args.InputFile))
+				if (fs.Directory.Exists(args.InputFile))
 				{
-					files.AddRange(Directory.GetFileSystemEntries(args.InputFile, "*.md", SearchOption.AllDirectories));
+					files.AddRange(fs.Directory.EnumerateFiles(args.InputFile, "*.md"));
 				}
 				else
 				{
@@ -52,22 +54,22 @@ namespace DocCreator
 			}
 			var manager = new TemplatePackageManager(Configuration.GetSetting("SourceRepository"));
 			var package = manager.GetPackage(Configuration.GetSetting("PackageId"));
-			if (!Directory.Exists(args.OutputDirectory))
+			if (!fs.Directory.Exists(args.OutputDirectory))
 			{
-				Directory.CreateDirectory(args.OutputDirectory);
+				fs.Directory.CreateDirectory(args.OutputDirectory);
 			}
-			using (var templater = new TemplateManager(package, new DirectoryInfo(args.OutputDirectory)))
+			using (var templater = new TemplateManager(fs, package, fs.DirectoryInfo.FromDirectoryName(args.OutputDirectory)))
 			{
 				return GenerateFiles(templater, args, files);
 			}
 		}
 
-		private static DirectoryInfo GenerateFiles(TemplateManager templater, ApplicationArgs args, List<string> files)
+		private static DirectoryInfoBase GenerateFiles(TemplateManager templater, ApplicationArgs args, List<string> files)
 		{
-			var outputFiles = new List<FileInfo>();
-			foreach (var file in files.Select(f => new FileInfo(f)))
+			var outputFiles = new List<FileInfoBase>();
+			foreach (var file in files.Select(f => FileSystem.FileInfo.FromFileName(f)))
 			{
-				var html = templater.GenerateHtml(args.ToModel(File.ReadAllText(file.FullName)));
+				var html = templater.GenerateHtml(args.ToModel(FileSystem.File.ReadAllText(file.FullName)));
 				if (args.RewriteLinks)
 				{
 					html = LinkConverter.RewriteLinks(html);
@@ -86,7 +88,7 @@ namespace DocCreator
 				.WithDescription("Input markdown file");
 			p.Setup(arg => arg.OutputDirectory)
 				.As('o', "output-dir")
-				.SetDefault(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")))
+				.SetDefault(FileSystem.Path.Combine(FileSystem.Path.GetTempPath(), Guid.NewGuid().ToString("N")))
 				.WithDescription("Directory for output files");
 			p.Setup(arg => arg.Theme)
 				.As('b', "theme")
