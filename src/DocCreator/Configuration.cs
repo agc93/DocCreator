@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Linq;
+using System.IO.Abstractions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocCreator
 {
     internal static class Configuration
     {
+        internal static IFileSystem FileSystem { get; set; }
         private static Dictionary<string, string> Defaults => new Dictionary<string, string>
         {
             ["PackageId"] = "DocCreator.TemplatePackage",
@@ -19,6 +17,7 @@ namespace DocCreator
 
         internal static string GetSetting(string key)
         {
+            
             if (Environment.GetEnvironmentVariable(key) != null)
             {
                 return Environment.GetEnvironmentVariable(key);
@@ -27,10 +26,10 @@ namespace DocCreator
             {
                 return Environment.GetEnvironmentVariable($"doc_{key}");
             }
-            var path = Path.Combine(Environment.CurrentDirectory,
+            var path = FileSystem.Path.Combine(Environment.CurrentDirectory,
                 $"{Assembly.GetEntryAssembly().GetName().Name}.config");
             if (
-                File.Exists(path))
+                FileSystem.File.Exists(path))
             {
                 return
                     ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).AppSettings.Settings[key]

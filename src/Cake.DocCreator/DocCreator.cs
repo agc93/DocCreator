@@ -34,7 +34,7 @@ namespace Cake.DocCreator
 
 		public DirectoryPath Generate(Action<DocCreatorSettings> configure)
 		{
-			var settings = new DocCreatorSettings(File, "./html-docs");
+			var settings = new DocCreatorSettings(Context, File, "./html-docs");
 			configure?.Invoke(settings);
 			var args = GetDocCreatorArguments(settings);
 			Run(settings, args);
