@@ -139,10 +139,10 @@ Task("NuGet")
 // TARGETS
 ///////////////////////////////////////////////////////////////////////////////
 
-Task("Default")
+Task("Build-Only")
     .IsDependentOn("Copy-Files")
 	.IsDependentOn("Run-Unit-Tests");
-Task("Publish").IsDependentOn("NuGet");
+Task("Default").IsDependentOn("NuGet");
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION
