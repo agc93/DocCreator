@@ -9,10 +9,10 @@ namespace DocCreator
 {
 	class Program
 	{
-        private static IFileSystem FileSystem { get; set; }
+		private static IFileSystem FileSystem { get; set; }
 		static void Main(string[] args)
 		{
-            FileSystem = new FileSystem();
+			FileSystem = new FileSystem();
 			var p = BuildCommandParser();
 			var parserResult = p.Parse(args);
 			if (parserResult.HasErrors || parserResult.HelpCalled)
@@ -35,7 +35,7 @@ namespace DocCreator
 
 		private static DirectoryInfoBase GenerateDocument(ApplicationArgs args)
 		{
-		    var fs = FileSystem;
+			var fs = FileSystem;
 			var files = new List<string>();
 			if (fs.File.Exists(args.InputFile))
 			{
@@ -53,7 +53,7 @@ namespace DocCreator
 				}
 			}
 			var manager = new TemplatePackageManager(Configuration.GetSetting("SourceRepository"));
-			var package = manager.GetPackage(Configuration.GetSetting("PackageId"));
+			var package = manager.GetPackage(args.OfflineMode ? Configuration.GetSetting("OfflinePackageId") : Configuration.GetSetting("PackageId"));
 			if (!fs.Directory.Exists(args.OutputDirectory))
 			{
 				fs.Directory.CreateDirectory(args.OutputDirectory);
@@ -102,6 +102,10 @@ namespace DocCreator
 				.As("rewrite-links")
 				.SetDefault(false)
 				.WithDescription("Rewrites relative .md links in processed documents");
+		    p.Setup(arg => arg.OfflineMode)
+		        .As("offline")
+		        .SetDefault(false)
+		        .WithDescription("Creates templates in offline mode (stores JS and CSS in output dir)");
 			p.SetupHelp("?", "h","help").Callback(t => Console.WriteLine(t));
 			return p;
 		}

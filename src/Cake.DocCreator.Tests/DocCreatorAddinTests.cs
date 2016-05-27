@@ -74,6 +74,18 @@ namespace Cake.DocCreator.Tests
 			result.Args.ShouldContain("--rewrite-links");
 		}
 
+		[Fact]
+		public void ShouldEnableOfflineWhenSet()
+		{
+			Fixture.DocCreatorSettings = s =>
+			{
+				s.InputPath = new FilePath(DocCreatorFixture.FilePath);
+				s.EnableOfflineMode();
+			};
+			var result = Fixture.Run();
+			result.Args.ShouldContain("--offline");
+		}
+
 		private Action<DocCreatorSettings> MinimalSettings => s => s.InputPath = new FilePath(DocCreatorFixture.FilePath);
 
 		public void Dispose()

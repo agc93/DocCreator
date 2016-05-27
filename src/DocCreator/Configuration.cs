@@ -12,6 +12,7 @@ namespace DocCreator
         private static Dictionary<string, string> Defaults => new Dictionary<string, string>
         {
             ["PackageId"] = "DocCreator.TemplatePackage",
+            ["OfflinePackageId"] = "DocCreator.TemplatePackage.Offline",
             ["SourceRepository"] = "https://nuget.org/api/v2/"
         };
 
