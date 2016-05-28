@@ -34,8 +34,24 @@ namespace Cake.DocCreator
 
 		public DirectoryPath Generate(Action<DocCreatorSettings> configure)
 		{
-			var settings = new DocCreatorSettings(Context, File, "./html-docs");
+			return RunTool(new DirectoryPath("./html-docs"), configure);
+		}
+
+		public DirectoryPath Generate(DirectoryPath outputDir)
+		{
+			return RunTool(outputDir, null);
+		}
+
+		public DirectoryPath Generate(DirectoryPath outputDir, Action<DocCreatorSettings> configure)
+		{
+			return RunTool(outputDir, configure);
+		}
+
+		private DirectoryPath RunTool(DirectoryPath outputDir, Action<DocCreatorSettings> configure)
+		{
+			var settings = new DocCreatorSettings(Context, File, outputDir);
 			configure?.Invoke(settings);
+			if (!Context.FileSystem.Exist(settings.OutputPath)) Context.FileSystem.GetDirectory(settings.OutputPath).Create();
 			var args = GetDocCreatorArguments(settings);
 			Run(settings, args);
 			return settings.OutputPath;
