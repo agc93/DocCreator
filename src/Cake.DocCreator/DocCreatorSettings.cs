@@ -1,89 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Cake.Core;
 using Cake.Core.IO;
 using Cake.Core.Tooling;
-using Path = Cake.Core.IO.Path;
 
 namespace Cake.DocCreator
 {
-	public class DocCreatorSettings : ToolSettings
-	{
-		public DocCreatorSettings(Path input, DirectoryPath outputPath)
-		{
-			InputPath = input;
-			OutputPath = outputPath;
-		}
+    public class DocCreatorSettings : ToolSettings
+    {
+        public DocCreatorSettings(ICakeContext context, Path input, DirectoryPath outputPath)
+        {
+            Context = context;
+            InputPath = input;
+            OutputPath = outputPath;
+        }
 
-		public DocCreatorSettings()
-		{
-		}
+        public DocCreatorSettings()
+        {
+        }
 
-		public IList<string> Arguments { get; set; } = new List<string>();
+        private ICakeContext Context { get; }
 
-		public Path InputPath { get; set; }
+        public IList<string> Arguments { get; set; } = new List<string>();
 
-		private bool RewriteLinks { get; set; }
+        public Path InputPath { get; set; }
 
-		private Theme Theme { get; set; }
+        private bool RewriteLinks { get; set; }
 
-		private string Title { get; set; }
+        private Theme Theme { get; set; }
 
-		public DirectoryPath OutputPath { get; private set; }
+        private string Title { get; set; }
 
-		private bool Debug { get; set; }
+        public DirectoryPath OutputPath { get; private set; }
 
-		public void Build(ProcessArgumentBuilder args)
-		{
-			if (OutputPath == null || InputPath == null)
-			{
-				throw new ArgumentException("Must provide input file list and output path");
-			}
-			if (InputPath.ToString().IsPresent()) args.Append($"-i {InputPath}");
-			if (Title.IsPresent()) {
-				args.Append("-t");
-				args.AppendQuoted(Title);
-			}
-			if (Theme.ToString().IsPresent()) args.Append($"-b {Theme}");
-			if (RewriteLinks) args.Append($"--rewrite-links");
-			args.Append($"-o {OutputPath}");
-			if (Debug)
-			{
-				Console.WriteLine(args.Render());
-			}
-		}
+        private bool Debug { get; set; }
 
-		public DocCreatorSettings WithTitle(string title)
-		{
-			Title = title;
-			return this;
-		}
+        public bool OfflineMode { get; set; }
 
-		public DocCreatorSettings With(Theme theme)
-		{
-			Theme = theme;
-			return this;
-		}
+        public void Build(ProcessArgumentBuilder args)
+        {
+            if (OutputPath == null || InputPath == null)
+            {
+                throw new ArgumentException("Must provide input file list and output path");
+            }
+            if (InputPath.ToString().IsPresent()) args.Append($"-i {InputPath}");
+            if (Title.IsPresent())
+            {
+                args.Append("-t");
+                args.AppendQuoted(Title);
+            }
+            if (Theme.ToString().IsPresent()) args.Append($"-b {Theme}");
+            if (RewriteLinks) args.Append($"--rewrite-links");
+            if (OfflineMode) args.Append("--offline");
+            args.Append($"-o {OutputPath}");
+            if (Debug)
+            {
+                Console.WriteLine(args.Render());
+            }
+        }
 
-		public DocCreatorSettings EnableLinkRewrite(bool enabled = true)
-		{
-			RewriteLinks = enabled;
-			return this;
-		}
+        public DocCreatorSettings WithTitle(string title)
+        {
+            Title = title;
+            return this;
+        }
 
-		public DocCreatorSettings OutputToPath(DirectoryPath directory)
-		{
-			OutputPath = directory;
-			if (!Directory.Exists(OutputPath.FullPath)) Directory.CreateDirectory(OutputPath.FullPath);
-			return this;
-		}
+        public DocCreatorSettings With(Theme theme)
+        {
+            Theme = theme;
+            return this;
+        }
 
-		public DocCreatorSettings EnableDebug(bool enabled = true)
-		{
-			Debug = enabled;
-			return this;
-		}
-	}
+        public DocCreatorSettings EnableLinkRewrite(bool enabled = true)
+        {
+            RewriteLinks = enabled;
+            return this;
+        }
+
+        public DocCreatorSettings OutputToPath(DirectoryPath directory)
+        {
+            OutputPath = directory;
+            if (!Context.FileSystem.GetDirectory(OutputPath).Exists)
+                Context.FileSystem.GetDirectory(OutputPath).Create();
+            return this;
+        }
+
+        public DocCreatorSettings EnableDebug(bool enabled = true)
+        {
+            Debug = enabled;
+            return this;
+        }
+
+        public DocCreatorSettings EnableOfflineMode(bool enabled = true)
+        {
+            OfflineMode = enabled;
+            return this;
+        }
+    }
 }

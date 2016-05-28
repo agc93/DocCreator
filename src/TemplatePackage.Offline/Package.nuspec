@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-	<id>DocCreator.TemplatePackage</id>
-	<version>1.0.7</version>
-	<title>DocCreator.TemplatePackage</title>
+	<id>DocCreator.TemplatePackage.Offline</id>
+	<version>1.0.1</version>
+	<title>DocCreator.TemplatePackage (Offline)</title>
 	<authors>Alistair Chapman</authors>
 	<owners>achapman</owners>
 	<description>
-	  Single-file template package for DocCreator, references strapdown.js script for single-file documentation in connected environments.
+	  Offline template package for DocCreator, includes all JS and CSS locally to enable fully offline documentation
 	</description>
 	<releaseNotes>
-		Convert to online single-file template format
+		Transition offline template to new package
 	</releaseNotes>
 	<summary>
-	  Simple Strapdown.js-based template package
+	  Simple Strapdown.js-based offline template package
 	</summary>
 	<language>en-AU</language>
 	<projectUrl>https://github.com/agc93/doccreator</projectUrl>
-	<iconUrl>https://maxcdn.icons8.com/Color/PNG/96/Network/cloud_storage-96.png</iconUrl>
+	<iconUrl>https://maxcdn.icons8.com/Color/PNG/96/Ecommerce/check-96.png</iconUrl>
 	<requireLicenseAcceptance>false</requireLicenseAcceptance>
 	<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
 	<copyright>Copyright  2016 - Icon by Icons8</copyright>
