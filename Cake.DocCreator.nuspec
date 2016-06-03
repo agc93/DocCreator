@@ -19,6 +19,7 @@
 	</metadata>
 	<files>
 		<file src="dist\build\Cake.DocCreator\*.dll" target="lib\net45"/>
+		<file src="dist\tools\*.exe" target="tools" />
 	</files>
 
 </package>
