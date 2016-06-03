@@ -41,11 +41,5 @@ namespace MarkdownGenerator
                 CopyAll(diSourceSubDir, nextTargetSubDir);
             }
         }
-
-        public static void CreateIfNotExists(this DirectoryBase directory, string path)
-        {
-            if (directory.Exists(path)) return;
-            directory.CreateDirectory(path);
-        }
     }
 }
