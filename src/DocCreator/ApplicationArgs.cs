@@ -9,5 +9,7 @@ namespace DocCreator
         public Theme Theme { get; set; }
         public string Title { get; set; }
         public bool RewriteLinks { get; internal set; }
+
+        public bool OfflineMode { get; set; }
     }
 }

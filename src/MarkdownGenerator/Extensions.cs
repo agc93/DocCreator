@@ -1,42 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO.Abstractions;
 
 namespace MarkdownGenerator
 {
     public static class Extensions
     {
-        public static void CopyDirectory(this DirectoryInfo source, DirectoryInfo target)
+        public static void CopyDirectory(this DirectoryInfoBase source, DirectoryInfoBase target, bool verbose = false)
         {
-            Copy(source.FullName, target.FullName);
+            Copy(source.FullName, target.FullName, verbose);
         }
 
-        private static void Copy(string sourceDirectory, string targetDirectory)
+        private static void Copy(string sourceDirectory, string targetDirectory, bool verbose = false, IFileSystem fs = null)
         {
-            DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
-            DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
-
-            CopyAll(diSource, diTarget);
+            fs = fs ?? new FileSystem();
+            DirectoryInfoBase diSource = fs.DirectoryInfo.FromDirectoryName(sourceDirectory);
+            DirectoryInfoBase diTarget = fs.DirectoryInfo.FromDirectoryName(targetDirectory);
+            CopyAll(diSource, diTarget, verbose);
         }
 
-        private static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        private static void CopyAll(DirectoryInfoBase source, DirectoryInfoBase target, bool verbose = true, IFileSystem fs = null)
         {
-            Directory.CreateDirectory(target.FullName);
+            fs = fs ?? new FileSystem();
+            fs.Directory.CreateDirectory(target.FullName);
 
             // Copy each file into the new directory.
-            foreach (FileInfo fi in source.GetFiles())
+            foreach (FileInfoBase fi in source.GetFiles())
             {
-                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
-                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+                if (verbose) Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                fi.CopyTo(fs.Path.Combine(target.FullName, fi.Name), true);
             }
 
             // Copy each subdirectory using recursion.
-            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            foreach (DirectoryInfoBase diSourceSubDir in source.GetDirectories())
             {
-                DirectoryInfo nextTargetSubDir =
+                DirectoryInfoBase nextTargetSubDir =
                     target.CreateSubdirectory(diSourceSubDir.Name);
                 CopyAll(diSourceSubDir, nextTargetSubDir);
             }

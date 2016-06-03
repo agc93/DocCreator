@@ -2,7 +2,6 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>Cake.DocCreator</id>
-		<version>0.1.0</version>
 		<title>Cake.DocCreator</title>
 		<authors>Alistair Chapman</authors>
 		<owners>Alistair Chapman</owners>
@@ -11,10 +10,12 @@
 		<iconUrl>https://raw.githubusercontent.com/cake-build/graphics/master/png/cake-medium.png</iconUrl>
 		<language>en-AU</language>
 		<description>A Cake addin to generate HTML documentation from Markdown source, using DocCreator</description>
-		<releaseNotes>Fix argument quoting in Cake plugin</releaseNotes>
+		<releaseNotes>Change to shipping tool in package until Cake's dependency resolution improves</releaseNotes>
 		<tags>cake build script documentation markdown</tags>
 		<dependencies>
-	    <dependency id="DocCreator" version="0.1.3" />
+	    <!-- <dependency id="DocCreator" version="0.1.3" /> --> 
+		<!-- This is an alternative to packing the tool in as below -->
+		<!-- Currently the main advantage to that approach is independent versioning -->
 	  </dependencies>
 	</metadata>
 	<files>

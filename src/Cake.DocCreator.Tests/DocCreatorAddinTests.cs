@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Cake.Core.IO;
 using Shouldly;
 using Xunit;
@@ -77,20 +74,16 @@ namespace Cake.DocCreator.Tests
 			result.Args.ShouldContain("--rewrite-links");
 		}
 
-		
-		public void ShouldCreateOutputFile()
+		[Fact]
+		public void ShouldEnableOfflineWhenSet()
 		{
-			File.WriteAllText(DocCreatorFixture.FilePath, "# Title\n\r\n\r## Heading\n\r\n\rSome **text**.");
-			
 			Fixture.DocCreatorSettings = s =>
 			{
 				s.InputPath = new FilePath(DocCreatorFixture.FilePath);
-				s.OutputToPath(Fixture.DataDirectory.Path);
+				s.EnableOfflineMode();
 			};
 			var result = Fixture.Run();
-			result.Args.ShouldContain($"-o {Fixture.DataDirectory.Path}");
-			Assert.True(Fixture.DataDirectory.Exists);
-			Assert.True(Fixture.DataDirectory.GetFiles("*.html", SearchScope.Current).Any());
+			result.Args.ShouldContain("--offline");
 		}
 
 		private Action<DocCreatorSettings> MinimalSettings => s => s.InputPath = new FilePath(DocCreatorFixture.FilePath);

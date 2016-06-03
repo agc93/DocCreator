@@ -1,6 +1,9 @@
 # DocCreator
 
-![VSTS Build Status][vsts-badge]
+[![Join the chat at https://gitter.im/agc93/DocCreator](https://badges.gitter.im/agc93/DocCreator.svg)](https://gitter.im/agc93/DocCreator?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
+[![VSTS Build Status][vsts-badge]](#)
 [![NuGet][nuget-v-badge]](https://www.nuget.org/packages/DocCreator/)
 [![NuGet Prerelease][nuget-pre-badge]](https://www.nuget.org/packages/DocCreator/)
 [![GitHub issues][github-issues]](https://github.com/agc93/DocCreator/issues)
