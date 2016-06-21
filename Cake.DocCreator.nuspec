@@ -10,7 +10,7 @@
 		<iconUrl>https://raw.githubusercontent.com/cake-build/graphics/master/png/cake-medium.png</iconUrl>
 		<language>en-AU</language>
 		<description>A Cake addin to generate HTML documentation from Markdown source, using DocCreator</description>
-		<releaseNotes>Change to shipping tool in package until Cake's dependency resolution improves</releaseNotes>
+		<releaseNotes>Defaulted to include new "quiet" flag</releaseNotes>
 		<tags>cake build script documentation markdown</tags>
 		<dependencies>
 	    <!-- <dependency id="DocCreator" version="0.1.3" /> --> 

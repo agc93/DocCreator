@@ -8,9 +8,8 @@ namespace Cake.DocCreator
 {
     public class DocCreatorSettings : ToolSettings
     {
-        public DocCreatorSettings(ICakeContext context, Path input, DirectoryPath outputPath)
+        public DocCreatorSettings(Path input, DirectoryPath outputPath)
         {
-            Context = context;
             InputPath = input;
             OutputPath = outputPath;
         }
@@ -18,8 +17,6 @@ namespace Cake.DocCreator
         public DocCreatorSettings()
         {
         }
-
-        private ICakeContext Context { get; }
 
         public IList<string> Arguments { get; set; } = new List<string>();
 
@@ -52,6 +49,7 @@ namespace Cake.DocCreator
             if (Theme.ToString().IsPresent()) args.Append($"-b {Theme}");
             if (RewriteLinks) args.Append($"--rewrite-links");
             if (OfflineMode) args.Append("--offline");
+            args.Append("--quiet");
             args.Append($"-o {OutputPath}");
             if (Debug)
             {
@@ -80,8 +78,6 @@ namespace Cake.DocCreator
         public DocCreatorSettings OutputToPath(DirectoryPath directory)
         {
             OutputPath = directory;
-            if (!Context.FileSystem.GetDirectory(OutputPath).Exists)
-                Context.FileSystem.GetDirectory(OutputPath).Create();
             return this;
         }
 

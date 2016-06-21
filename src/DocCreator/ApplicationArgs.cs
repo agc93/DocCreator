@@ -11,5 +11,6 @@ namespace DocCreator
         public bool RewriteLinks { get; internal set; }
 
         public bool OfflineMode { get; set; }
+        public bool QuietMode { get; set; }
     }
 }

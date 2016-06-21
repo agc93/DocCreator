@@ -22,14 +22,15 @@ namespace DocCreator
 			else
 			{
 				var output = GenerateDocument(p.Object);
-				try
-				{
-					System.Diagnostics.Process.Start(output?.FullName ?? p.Object.OutputDirectory);
-				}
-				catch (Exception)
-				{
-					// ignored
-				}
+			    if (p.Object.QuietMode) return;
+			    try
+			    {
+			        System.Diagnostics.Process.Start(output?.FullName ?? p.Object.OutputDirectory);
+			    }
+			    catch (Exception)
+			    {
+			        // ignored
+			    }
 			}
 		}
 
@@ -106,6 +107,10 @@ namespace DocCreator
 		        .As("offline")
 		        .SetDefault(false)
 		        .WithDescription("Creates templates in offline mode (stores JS and CSS in output dir)");
+		    p.Setup(arg => arg.QuietMode)
+		        .As('q', "quiet")
+		        .SetDefault(false)
+		        .WithDescription("Runs non-interactively, does not open results folder.");
 			p.SetupHelp("?", "h","help").Callback(t => Console.WriteLine(t));
 			return p;
 		}

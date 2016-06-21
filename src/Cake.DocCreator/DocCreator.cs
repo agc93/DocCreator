@@ -14,16 +14,16 @@ namespace Cake.DocCreator
 		public DocCreator(Path file, ICakeContext ctx ) : this(ctx.FileSystem, ctx.Environment, ctx.ProcessRunner, ctx.Globber)
 		{
 			File = file;
-			Context = ctx;
 		}
 
 		public DocCreator(IFileSystem fileSystem, ICakeEnvironment environment, IProcessRunner processRunner, IGlobber globber) : base(fileSystem, environment, processRunner, globber)
 		{
+		    FileSystem = fileSystem;
 		}
 
-		private ICakeContext Context { get; set; }
+	    public IFileSystem FileSystem { get; set; }
 
-		private Path File { get; set; }
+	    private Path File { get; set; }
 
 		protected override string GetToolName() => "DocCreator Runner";
 
@@ -34,8 +34,24 @@ namespace Cake.DocCreator
 
 		public DirectoryPath Generate(Action<DocCreatorSettings> configure)
 		{
-			var settings = new DocCreatorSettings(Context, File, "./html-docs");
+			return RunTool(new DirectoryPath("./html-docs"), configure);
+		}
+
+		public DirectoryPath Generate(DirectoryPath outputDir)
+		{
+			return RunTool(outputDir, null);
+		}
+
+		public DirectoryPath Generate(DirectoryPath outputDir, Action<DocCreatorSettings> configure)
+		{
+			return RunTool(outputDir, configure);
+		}
+
+		private DirectoryPath RunTool(DirectoryPath outputDir, Action<DocCreatorSettings> configure)
+		{
+			var settings = new DocCreatorSettings(File, outputDir);
 			configure?.Invoke(settings);
+			if (!FileSystem.Exist(settings.OutputPath)) FileSystem.GetDirectory(settings.OutputPath).Create();
 			var args = GetDocCreatorArguments(settings);
 			Run(settings, args);
 			return settings.OutputPath;

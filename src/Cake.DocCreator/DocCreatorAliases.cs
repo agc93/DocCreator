@@ -13,15 +13,9 @@ namespace Cake.DocCreator
 	public static class DocCreatorAliases
 	{
 		[CakeMethodAlias]
-		public static DocCreator DocCreator(this ICakeContext ctx, DirectoryPath docsDir)
+		public static DocCreator DocCreator(this ICakeContext ctx, Path docsDir)
 		{
 			return new DocCreator(docsDir, ctx);
-		}
-
-		[CakeMethodAlias]
-		public static DocCreator DocCreator(this ICakeContext ctx, FilePath file)
-		{
-			return new DocCreator(file, ctx);
 		}
 	}
 

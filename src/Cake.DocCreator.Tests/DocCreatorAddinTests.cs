@@ -86,6 +86,17 @@ namespace Cake.DocCreator.Tests
 			result.Args.ShouldContain("--offline");
 		}
 
+		[Fact]
+		public void ShouldAlwaysSetQuietMode()
+		{
+			Fixture.DocCreatorSettings = s =>
+			{
+				s.InputPath = new FilePath(DocCreatorFixture.FilePath);
+			};
+			var result = Fixture.Run();
+			result.Args.ShouldContain("--quiet");
+		}
+
 		private Action<DocCreatorSettings> MinimalSettings => s => s.InputPath = new FilePath(DocCreatorFixture.FilePath);
 
 		public void Dispose()
