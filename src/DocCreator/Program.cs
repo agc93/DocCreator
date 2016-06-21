@@ -59,7 +59,7 @@ namespace DocCreator
 			{
 				fs.Directory.CreateDirectory(args.OutputDirectory);
 			}
-			using (var templater = new TemplateManager(fs, package, fs.DirectoryInfo.FromDirectoryName(args.OutputDirectory)))
+			using (var templater = new TemplateManager(fs, package, fs.DirectoryInfo.FromDirectoryName(args.OutputDirectory), !args.QuietMode))
 			{
 				return GenerateFiles(templater, args, files);
 			}

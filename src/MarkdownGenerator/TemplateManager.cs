@@ -10,9 +10,10 @@ namespace MarkdownGenerator
 {
     public class TemplateManager : IDisposable
     {
-        public TemplateManager(IFileSystem fs, DirectoryInfoBase templateDirectory, DirectoryInfoBase outputDirectory)
+        public TemplateManager(IFileSystem fs, DirectoryInfoBase templateDirectory, DirectoryInfoBase outputDirectory, bool debug = false)
         {
             FileSystem = fs;
+            Debug = debug;
             Output = outputDirectory.FullName;
             Workspace = CreateWorkspace(templateDirectory.FullName);
             var engine = RazorEngineService.Create(new TemplateServiceConfiguration
@@ -24,6 +25,8 @@ namespace MarkdownGenerator
             });
             Engine.Razor = engine;
         }
+
+        private bool Debug { get; set; }
 
         private IFileSystem FileSystem { get; set; }
 
@@ -68,7 +71,8 @@ namespace MarkdownGenerator
             FileSystem.DirectoryInfo.FromDirectoryName(Workspace)
                 .CopyDirectory(
                     FileSystem.DirectoryInfo.FromDirectoryName(
-                        FileSystem.FileInfo.FromFileName(path).Directory.FullName));
+                        FileSystem.FileInfo.FromFileName(path).Directory.FullName),
+                            Debug);
             CleanupOutput(FileSystem.DirectoryInfo.FromDirectoryName(Output));
             FileSystem.File.WriteAllText(path, content, Encoding.UTF8);
             return FileSystem.FileInfo.FromFileName(path);

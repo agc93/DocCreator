@@ -35,7 +35,7 @@ namespace MarkdownGenerator
             {
                 DirectoryInfoBase nextTargetSubDir =
                     target.CreateSubdirectory(diSourceSubDir.Name);
-                CopyAll(diSourceSubDir, nextTargetSubDir);
+                CopyAll(diSourceSubDir, nextTargetSubDir, verbose);
             }
         }
     }
