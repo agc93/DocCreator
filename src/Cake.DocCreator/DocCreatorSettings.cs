@@ -49,6 +49,7 @@ namespace Cake.DocCreator
             if (Theme.ToString().IsPresent()) args.Append($"-b {Theme}");
             if (RewriteLinks) args.Append($"--rewrite-links");
             if (OfflineMode) args.Append("--offline");
+            args.Append("--quiet");
             args.Append($"-o {OutputPath}");
             if (Debug)
             {
