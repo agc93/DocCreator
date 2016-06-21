@@ -13,6 +13,7 @@ o:output-dir    Directory for output files
 t:title         Title for the output file. Defaults to 'Documentation'.
 rewrite-links   Rewrites relative .md links in processed documents
 offline         Use multi-file offline template
+quiet           Runs non-interactively, does not open results folder.
 ```
 
 Each switch can be used with either `-` or `/`. That is, `-t`, `/t`, `--title` and `/title` are all equivalent.

@@ -5,7 +5,7 @@
     <version>0.1.3</version>
     <authors>Alistair Chapman</authors>
     <description>A simple tool to transform Markdown documents into attractive HTML, powered by strapdown.js</description>
-    <releaseNotes>Suppress temp file output from template creation, and fix crash for inaccessible generation target</releaseNotes>
+    <releaseNotes>New quiet flag to prevent output folder launch behaviour.</releaseNotes>
     <language>en-AU</language>
     <projectUrl>https://bitbucket.org/agc93/DocCreator/</projectUrl>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
