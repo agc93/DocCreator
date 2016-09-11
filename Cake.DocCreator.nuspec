@@ -6,7 +6,7 @@
 		<authors>Alistair Chapman</authors>
 		<owners>Alistair Chapman</owners>
 		<licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
-		<projectUrl>https://bitbucket.org/agc93/DocCreator/</projectUrl>
+		<projectUrl>https://github.com/agc93/DocCreator/</projectUrl>
 		<iconUrl>https://raw.githubusercontent.com/cake-build/graphics/master/png/cake-medium.png</iconUrl>
 		<language>en-AU</language>
 		<description>A Cake addin to generate HTML documentation from Markdown source, using DocCreator</description>
