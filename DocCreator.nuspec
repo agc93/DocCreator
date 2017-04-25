@@ -4,7 +4,7 @@
     <id>DocCreator</id>
     <authors>Alistair Chapman</authors>
     <description>A simple tool to transform Markdown documents into attractive HTML, powered by strapdown.js</description>
-    <releaseNotes>Fix for quiet flag not being respected</releaseNotes>
+    <releaseNotes>Updated dependencies and build toolchain</releaseNotes>
     <language>en-AU</language>
     <projectUrl>https://github.com/agc93/DocCreator/</projectUrl>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>

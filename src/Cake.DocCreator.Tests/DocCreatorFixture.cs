@@ -31,7 +31,7 @@ namespace Cake.DocCreator.Tests
 
 		protected override void RunTool()
 		{
-			var tool = new DocCreator(FileSystem, Environment, ProcessRunner, Globber);
+			var tool = new DocCreator(FileSystem, Environment, ProcessRunner, Tools);
 			tool.Generate(DocCreatorSettings);
 		}
 
